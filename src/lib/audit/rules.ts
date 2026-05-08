@@ -67,13 +67,64 @@ export function detectConsolidationOpportunities(
 
 /**
  * Rule: Check for team-size mismatches
- * Solo user paying for team plans, or large teams with individual plans
+ * Solo user paying for team plans should downgrade
  */
-export function detectTeamSizeMismatch(
-  _tools: AITool[],
-  _teamSize: string
+export function checkTeamSizeMismatch(
+  tool: AITool,
+  teamSize: 'solo' | 'small' | 'medium' | 'large'
 ): Recommendation[] {
-  // TODO: Implement team size logic
+  const pricing = getPricingForTool(tool.name);
+
+  if (!pricing || tool.currentPlan === 'free') {
+    return [];
+  }
+
+  // Solo users should never use enterprise/team plans
+  if (teamSize === 'solo' && (tool.currentPlan === 'enterprise' || tool.currentPlan === 'pro')) {
+    const currentPlanCost = pricing[tool.currentPlan]?.cost ?? tool.monthlySpend;
+    const freePlanCost = pricing.free?.cost ?? 0;
+    const estimatedSavings = Math.max(currentPlanCost - freePlanCost, 0);
+
+    if (estimatedSavings <= 0) {
+      return [];
+    }
+
+    return [
+      {
+        toolId: tool.id,
+        toolName: tool.name,
+        type: 'downgrade',
+        reason: `Solo user paying for ${tool.currentPlan} plan; free plan recommended`,
+        estimatedSavings,
+        nextPlan: 'free',
+        confidence: 'high',
+      },
+    ];
+  }
+
+  // Small teams should not use enterprise plans if not needed
+  if (teamSize === 'small' && tool.currentPlan === 'enterprise') {
+    const enterpriseCost = pricing.enterprise?.cost ?? tool.monthlySpend;
+    const proCost = pricing.pro?.cost ?? enterpriseCost;
+    const estimatedSavings = Math.max(enterpriseCost - proCost, 0);
+
+    if (estimatedSavings <= 0) {
+      return [];
+    }
+
+    return [
+      {
+        toolId: tool.id,
+        toolName: tool.name,
+        type: 'downgrade',
+        reason: `Small team on enterprise plan; pro plan may be sufficient`,
+        estimatedSavings,
+        nextPlan: 'pro',
+        confidence: 'medium',
+      },
+    ];
+  }
+
   return [];
 }
 

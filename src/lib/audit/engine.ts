@@ -3,7 +3,7 @@
  * This is the core of the application and must produce consistent results
  */
 
-import { checkUnderutilization } from './rules';
+import { checkUnderutilization, checkTeamSizeMismatch } from './rules';
 import { AuditInput, AuditResult } from './types';
 
 /**
@@ -17,9 +17,15 @@ export function evaluate(input: AuditInput): AuditResult {
   }
 
   // Generate recommendations using deterministic rule checks.
-  const recommendations = input.tools.flatMap((tool) =>
+  const underutilizationRecs = input.tools.flatMap((tool) =>
     checkUnderutilization(tool)
   );
+
+  const teamSizeRecs = input.tools.flatMap((tool) =>
+    checkTeamSizeMismatch(tool, input.teamSize)
+  );
+
+  const recommendations = [...underutilizationRecs, ...teamSizeRecs];
 
   const totalMonthlySavings = recommendations.reduce(
     (sum, rec) => sum + rec.estimatedSavings,
