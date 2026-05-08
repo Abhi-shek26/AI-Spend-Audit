@@ -32,7 +32,7 @@ export default function AuditForm({ onSubmit }: { onSubmit: (data: FormState) =>
       if (saved) {
         return JSON.parse(saved) as FormState;
       }
-    } catch (e) {
+    } catch {
       // ignore parse errors
     }
 
@@ -53,13 +53,12 @@ export default function AuditForm({ onSubmit }: { onSubmit: (data: FormState) =>
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [isLoading, setIsLoading] = useState(true);
 
   // Save to localStorage whenever form state changes
   useEffect(() => {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(formState));
-    } catch (e) {
+    } catch {
       // ignore serialization errors
     }
   }, [formState]);

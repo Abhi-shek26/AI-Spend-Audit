@@ -56,12 +56,10 @@ export function detectUnderutilizedTools(tools: AITool[]): Recommendation[] {
  * Example: Having both ChatGPT Pro and Claude Pro when usage is light
  */
 export function detectConsolidationOpportunities(
-  _tools: AITool[],
-  _useCase: string
-): Recommendation[] {
   // TODO: Implement consolidation logic
   // This would check if there are similar tools in different use cases
   // that could be consolidated into one
+): Recommendation[] {
   return [];
 }
 
