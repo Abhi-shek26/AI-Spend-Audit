@@ -36,23 +36,25 @@
 - Continue filling required docs incrementally to avoid end-of-week rush.
 
 ## Day 3 — 2026-05-08
-**Hours worked:** 2
+**Hours worked:** 3.5
 **What I did:**
-- Implemented `checkTeamSizeMismatch()` rule to detect and recommend plan downgrades when team size doesn't match current plan (solo users on enterprise plans, small teams on enterprise, etc.).
-- Created 8 comprehensive unit tests for the team-size rule covering solo, small, medium, and large team scenarios, plus edge cases.
-- Integrated the new rule into `engine.evaluate()` so both underutilization and team-size recommendations are generated.
-- Set up Vitest testing framework with config file and alias resolution for `@/` imports.
-- Implemented AuditForm component with tool input, team size selection, and localStorage persistence for audit state.
-- Integrated form into audit page with form submission routing to results page via sessionStorage.
+- Implemented `checkTeamSizeMismatch()` rule to detect and recommend plan downgrades when team size doesn't match current plan (solo users on enterprise/pro plans, small teams on enterprise, etc.).
+- Wrote 8 focused unit tests for the team-size rule covering solo, small, medium, and large team scenarios and edge cases.
+- Integrated the team-size rule into `engine.evaluate()` alongside the existing `checkUnderutilization()` checks so multiple rules compose deterministically.
+- Set up Vitest with `vitest.config.ts` and alias resolution for `@/` imports; added `npm test` script.
+- Added 2 engine-level tests (`tests/unit/engine-more.test.ts`) and created `TESTS.md` documenting all automated tests and how to run them.
+- Implemented `AuditForm` UI component with comprehensive tool input, team-size selection, monthly-spend tracking, and localStorage persistence; integrated it into the audit page and wired submission to `evaluate()` with results stored in `sessionStorage`.
+- Added CI workflow at `.github/workflows/ci.yml` to run `npm ci`, `npm run lint`, and `npm test` on pushes/PRs to `main`.
+- Fixed ESLint/flat-config issues by adding `eslint.config.cjs` (flat CJS config), addressed lint warnings/errors across the repo, and ensured `npm run lint` completes without errors.
 **What I learned:**
-- Testing multiple scenarios per rule (free plan exemptions, zero savings guardrails) catches subtle bugs early.
-- Vitest configuration needed explicit alias resolution since TypeScript paths don't auto-apply to test environment.
-- Client-side form persistence with localStorage + useEffect patterns works well for temporary state; sessionStorage clean separation for results handoff.
-- React form state management with nested objects (tools array) requires careful spread operator usage to trigger re-renders.
+- Writing small, focused tests for each rule (and engine-level integration tests) makes behavior explicit and reduces regressions.
+- Vitest needs explicit path-alias configuration when using TypeScript `paths` (add `vitest.config.ts`).
+- ESLint v9 requires a flat config entrypoint; providing `eslint.config.cjs` that mirrors `eslint.config.mjs` resolves CI issues. Some lint findings required tightening types and avoiding setState inside effects.
+- LocalStorage + sessionStorage are practical for prototype UX (persisting form state; passing results between pages) but will be replaced by a server-backed store in later days.
 **Blockers / what I'm stuck on:**
-- None; all tests passing (16 total: 8 new team-size + 5 underutilization + 3 engine).
+- None — tests and lint are green locally; CI workflow has been added and will run on the remote.
 **Plan for tomorrow:**
-- Implement results page component to display generated recommendations.
-- Add consolidation opportunity rule (detect duplicate/competing tools).
-- Implement AI summary generation using Anthropic API.
+- Implement the results page component to display generated recommendations and a shareable summary.
+- Add a `detectConsolidationOpportunities()` rule to identify overlapping tools that can be consolidated.
+- Start integrating AI summary generation (Anthropic/Claude) with a placeholder flow and environment-gated calls.
 
