@@ -17,8 +17,11 @@ I will finalize all 5 required answers on Day 7.
 - Manual verification done: sourced pricing links manually, ran focused unit tests, and integrated rules into engine in separate commits.
 - AI mistake caught: over-generalized pricing assumptions across vendors; fixed by introducing a pricing module and test-backed rule behavior.
 
-### Day 3 — YYYY-MM-DD
-- To be filled on Day 3.
+### Day 3 — 2026-05-08
+- AI used for: suggesting logic for team-size condition checks, generating comprehensive test scenarios, and formatting DEVLOG entry wording.
+- AI not trusted for: final business logic without manual review and pricing-based decision thresholds.
+- Manual verification done: reviewed all 8 test cases individually, ensured zero-savings guardrails work correctly, integrated rule by hand into engine cleanly.
+- AI mistake caught: initially suggested overly broad team-size matching logic; refined to focus on specific downgrades (solo user + paid plans only).
 
 ### Day 4 — YYYY-MM-DD
 - To be filled on Day 4.

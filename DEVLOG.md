@@ -34,3 +34,23 @@
 - Add at least one additional recommendation rule (team-size mismatch or consolidation).
 - Expand tests to cover engine-level outputs, not only single-rule behavior.
 - Continue filling required docs incrementally to avoid end-of-week rush.
+
+## Day 3 — 2026-05-08
+**Hours worked:** 2
+**What I did:**
+- Implemented `checkTeamSizeMismatch()` rule to detect and recommend plan downgrades when team size doesn't match current plan (solo users on enterprise plans, small teams on enterprise, etc.).
+- Created 8 comprehensive unit tests for the team-size rule covering solo, small, medium, and large team scenarios, plus edge cases.
+- Integrated the new rule into `engine.evaluate()` so both underutilization and team-size recommendations are generated.
+- Set up Vitest testing framework with config file and alias resolution for `@/` imports.
+- Added npm test script and fixed legacy Jest import in audit.test.ts.
+**What I learned:**
+- Testing multiple scenarios per rule (free plan exemptions, zero savings guardrails) catches subtle bugs early.
+- Vitest configuration needed explicit alias resolution since TypeScript paths don't auto-apply to test environment.
+- Two independent rules can be cleanly combined at engine level using separate flatMap chains, preserving composability.
+**Blockers / what I'm stuck on:**
+- None; all tests passing (16 total: 8 new team-size + 5 underutilization + 3 engine).
+**Plan for tomorrow:**
+- Implement consolidation opportunity rule (detect duplicate/competing tools).
+- Begin form UI component for tool input and localStorage persistence.
+- Add additional engine-level tests for multi-rule scenarios.
+
