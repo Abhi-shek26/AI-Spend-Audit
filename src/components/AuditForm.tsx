@@ -15,14 +15,37 @@ interface FormState {
   useCases: string;
 }
 
-export default function AuditForm({ onSubmit }: { onSubmit: (data: FormState) => void }) {
-  const [formState, setFormState] = useState<FormState>({
-    teamSize: 'small',
-    tools: [],
-    useCases: '',
-  });
+type Plan = typeof PLANS[number];
+type Usage = typeof USAGE_FREQUENCIES[number];
 
-  const [newTool, setNewTool] = useState<Partial<AITool>>({
+type NewToolState = {
+  name: string;
+  currentPlan: Plan;
+  usageFrequency: Usage;
+  monthlySpend: number;
+};
+
+export default function AuditForm({ onSubmit }: { onSubmit: (data: FormState) => void }) {
+  const getInitialState = (): FormState => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        return JSON.parse(saved) as FormState;
+      }
+    } catch (e) {
+      // ignore parse errors
+    }
+
+    return {
+      teamSize: 'small',
+      tools: [],
+      useCases: '',
+    };
+  };
+
+  const [formState, setFormState] = useState<FormState>(getInitialState);
+
+  const [newTool, setNewTool] = useState<NewToolState>({
     name: TOOLS_LIST[0],
     currentPlan: 'pro',
     usageFrequency: 'daily',
@@ -32,26 +55,14 @@ export default function AuditForm({ onSubmit }: { onSubmit: (data: FormState) =>
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isLoading, setIsLoading] = useState(true);
 
-  // Load from localStorage on mount
-  useEffect(() => {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved) {
-      try {
-        const parsed = JSON.parse(saved);
-        setFormState(parsed);
-      } catch (e) {
-        console.error('Failed to load saved data:', e);
-      }
-    }
-    setIsLoading(false);
-  }, []);
-
   // Save to localStorage whenever form state changes
   useEffect(() => {
-    if (!isLoading) {
+    try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(formState));
+    } catch (e) {
+      // ignore serialization errors
     }
-  }, [formState, isLoading]);
+  }, [formState]);
 
   const validateNewTool = (): boolean => {
     const newErrors: Record<string, string> = {};
@@ -72,11 +83,11 @@ export default function AuditForm({ onSubmit }: { onSubmit: (data: FormState) =>
     if (!validateNewTool()) return;
 
     const tool: AITool = {
-      id: `${newTool.name?.toLowerCase().replace(/\s+/g, '-')}-${Date.now()}`,
-      name: newTool.name || '',
-      currentPlan: newTool.currentPlan as any,
+      id: `${newTool.name.toLowerCase().replace(/\s+/g, '-')}-${Date.now()}`,
+      name: newTool.name,
+      currentPlan: newTool.currentPlan,
       monthlySpend: newTool.monthlySpend || 0,
-      usageFrequency: newTool.usageFrequency as any,
+      usageFrequency: newTool.usageFrequency,
     };
 
     setFormState((prev) => ({
@@ -155,7 +166,7 @@ export default function AuditForm({ onSubmit }: { onSubmit: (data: FormState) =>
               </label>
               <select
                 value={newTool.name || ''}
-                onChange={(e) => setNewTool((prev) => ({ ...prev, name: e.target.value }))}
+                onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setNewTool((prev) => ({ ...prev, name: e.target.value }))}
                 className="w-full px-3 py-2 border border-slate-300 rounded-md text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 {TOOLS_LIST.map((tool) => (
@@ -176,7 +187,7 @@ export default function AuditForm({ onSubmit }: { onSubmit: (data: FormState) =>
                 min="0"
                 step="0.01"
                 value={newTool.monthlySpend || ''}
-                onChange={(e) =>
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                   setNewTool((prev) => ({
                     ...prev,
                     monthlySpend: parseFloat(e.target.value) || 0,
@@ -197,8 +208,8 @@ export default function AuditForm({ onSubmit }: { onSubmit: (data: FormState) =>
               </label>
               <select
                 value={newTool.currentPlan || 'pro'}
-                onChange={(e) =>
-                  setNewTool((prev) => ({ ...prev, currentPlan: e.target.value as any }))
+                onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
+                  setNewTool((prev) => ({ ...prev, currentPlan: e.target.value as Plan }))
                 }
                 className="w-full px-3 py-2 border border-slate-300 rounded-md text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
@@ -217,10 +228,10 @@ export default function AuditForm({ onSubmit }: { onSubmit: (data: FormState) =>
               </label>
               <select
                 value={newTool.usageFrequency || 'daily'}
-                onChange={(e) =>
+                onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
                   setNewTool((prev) => ({
                     ...prev,
-                    usageFrequency: e.target.value as any,
+                    usageFrequency: e.target.value as Usage,
                   }))
                 }
                 className="w-full px-3 py-2 border border-slate-300 rounded-md text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500"

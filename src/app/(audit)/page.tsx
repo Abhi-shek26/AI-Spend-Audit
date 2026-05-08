@@ -3,17 +3,22 @@
 import { useRouter } from 'next/navigation';
 import AuditForm from '@/components/AuditForm';
 import { evaluate } from '@/lib/audit/engine';
+import { AuditInput } from '@/lib/audit/types';
 
 export default function AuditPage() {
   const router = useRouter();
 
-  const handleAuditSubmit = (data: any) => {
+  const handleAuditSubmit = (data: {
+    tools: AuditInput['tools'];
+    teamSize: AuditInput['teamSize'];
+    useCases: string;
+  }) => {
     // Prepare audit input
-    const auditInput = {
+    const auditInput: AuditInput = {
       tools: data.tools,
       teamSize: data.teamSize,
       useCases: data.useCases.split(',').map((s: string) => s.trim()).filter((s: string) => s),
-      totalMonthlySpend: data.tools.reduce((sum: number, tool: any) => sum + tool.monthlySpend, 0),
+      totalMonthlySpend: data.tools.reduce((sum: number, tool: { monthlySpend: number }) => sum + tool.monthlySpend, 0),
     };
 
     // Run audit

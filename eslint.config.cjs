@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-require-imports */
 // Flat config CJS fallback for ESLint v9 environments
 // Mirrors the existing eslint.config.mjs content but in CommonJS form
 const { defineConfig, globalIgnores } = require('eslint/config');
