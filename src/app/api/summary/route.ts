@@ -46,7 +46,7 @@ export async function POST(request: Request) {
     } catch {
       return NextResponse.json({ summary: `Summary generation error` });
     }
-  } catch (e) {
+  } catch {
     return NextResponse.json({ summary: 'Invalid request' }, { status: 400 });
   }
 }

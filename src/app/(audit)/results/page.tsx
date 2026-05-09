@@ -2,9 +2,10 @@
 
 import { useEffect, useState } from 'react';
 import { AuditResult, Recommendation } from '@/lib/audit/types';
+import { saveSharedAuditResult } from '@/lib/audit/share';
 
 export default function ResultsPage() {
-  const [result, setResult] = useState<AuditResult | null>(() => {
+  const [result] = useState<AuditResult | null>(() => {
     try {
       const raw = sessionStorage.getItem('audit-result');
       if (raw) return JSON.parse(raw) as AuditResult;
@@ -14,6 +15,7 @@ export default function ResultsPage() {
     return null;
   });
   const [summary, setSummary] = useState<string>('');
+  const [shareUrl, setShareUrl] = useState<string>('');
 
   useEffect(() => {
     let mounted = true;
@@ -37,6 +39,20 @@ export default function ResultsPage() {
     };
   }, [result]);
 
+  const handleCreateShareLink = async () => {
+    if (!result) return;
+
+    saveSharedAuditResult(result);
+    const url = `${window.location.origin}/audit/results/${result.id}`;
+    setShareUrl(url);
+
+    try {
+      await navigator.clipboard.writeText(url);
+    } catch {
+      // ignore clipboard errors
+    }
+  };
+
   if (!result) {
     return (
       <div className="p-8">
@@ -56,6 +72,20 @@ export default function ResultsPage() {
       <section className="mb-6 bg-white p-6 rounded-md border">
         <h2 className="text-lg font-semibold">Summary</h2>
         <p className="mt-2 text-slate-700">{summary || 'Generating summary...'}</p>
+        <div className="mt-4 flex flex-col gap-2">
+          <button
+            type="button"
+            onClick={handleCreateShareLink}
+            className="w-fit rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-700"
+          >
+            Create Share Link
+          </button>
+          {shareUrl && (
+            <p className="text-xs text-slate-500 break-all">
+              Share URL: {shareUrl}
+            </p>
+          )}
+        </div>
       </section>
 
       <section className="mb-6 bg-white p-6 rounded-md border">

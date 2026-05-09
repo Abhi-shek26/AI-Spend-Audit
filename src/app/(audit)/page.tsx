@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import AuditForm from '@/components/AuditForm';
 import { evaluate } from '@/lib/audit/engine';
 import { AuditInput } from '@/lib/audit/types';
+import { saveSharedAuditResult } from '@/lib/audit/share';
 
 export default function AuditPage() {
   const router = useRouter();
@@ -24,8 +25,9 @@ export default function AuditPage() {
     // Run audit
     const result = evaluate(auditInput);
 
-    // Store result and navigate to results page
+    // Store result for current session and share-page lookup
     sessionStorage.setItem('audit-result', JSON.stringify(result));
+    saveSharedAuditResult(result);
     router.push('/audit/results');
   };
 
