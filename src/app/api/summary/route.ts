@@ -30,7 +30,12 @@ export async function POST(request: Request) {
       });
 
       if (!resp.ok) {
-        const text = await resp.text();
+        // consume body for debugging but don't keep unused variable
+        try {
+          void (await resp.text());
+        } catch {
+          // ignore
+        }
         return NextResponse.json({ summary: `Summary generation failed: ${resp.status}` });
       }
 
@@ -38,7 +43,7 @@ export async function POST(request: Request) {
       const summary = data.completion || data.completion?.[0] || data.output || '';
 
       return NextResponse.json({ summary: summary || `Summary unavailable` });
-    } catch (e) {
+    } catch {
       return NextResponse.json({ summary: `Summary generation error` });
     }
   } catch (e) {

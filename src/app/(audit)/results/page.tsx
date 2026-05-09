@@ -1,23 +1,19 @@
-'use client';
+"use client";
 
 import { useEffect, useState } from 'react';
 import { AuditResult, Recommendation } from '@/lib/audit/types';
-import { generateAuditSummary } from '@/lib/ai/claude';
 
 export default function ResultsPage() {
-  const [result, setResult] = useState<AuditResult | null>(null);
-  const [summary, setSummary] = useState<string>('');
-
-  useEffect(() => {
+  const [result, setResult] = useState<AuditResult | null>(() => {
     try {
       const raw = sessionStorage.getItem('audit-result');
-      if (raw) {
-        setResult(JSON.parse(raw));
-      }
+      if (raw) return JSON.parse(raw) as AuditResult;
     } catch {
       // ignore
     }
-  }, []);
+    return null;
+  });
+  const [summary, setSummary] = useState<string>('');
 
   useEffect(() => {
     let mounted = true;

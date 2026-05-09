@@ -59,6 +59,7 @@ export function detectConsolidationOpportunities(
   tools: AITool[],
   _useCases: string[] = []
 ): Recommendation[] {
+  void _useCases;
   // Simple heuristic: group known interchangeable tools (chat-style LLMs)
   const groups: Record<string, string[]> = {
     llm: ['ChatGPT', 'Claude', 'Cursor', 'Vertex AI'],
