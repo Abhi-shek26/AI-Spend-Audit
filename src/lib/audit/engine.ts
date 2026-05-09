@@ -3,7 +3,7 @@
  * This is the core of the application and must produce consistent results
  */
 
-import { checkUnderutilization, checkTeamSizeMismatch } from './rules';
+import { checkUnderutilization, checkTeamSizeMismatch, detectConsolidationOpportunities } from './rules';
 import { AuditInput, AuditResult } from './types';
 
 /**
@@ -25,7 +25,9 @@ export function evaluate(input: AuditInput): AuditResult {
     checkTeamSizeMismatch(tool, input.teamSize)
   );
 
-  const recommendations = [...underutilizationRecs, ...teamSizeRecs];
+  const consolidationRecs = detectConsolidationOpportunities(input.tools, input.useCases);
+
+  const recommendations = [...underutilizationRecs, ...teamSizeRecs, ...consolidationRecs];
 
   const totalMonthlySavings = recommendations.reduce(
     (sum, rec) => sum + rec.estimatedSavings,

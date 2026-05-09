@@ -56,11 +56,48 @@ export function detectUnderutilizedTools(tools: AITool[]): Recommendation[] {
  * Example: Having both ChatGPT Pro and Claude Pro when usage is light
  */
 export function detectConsolidationOpportunities(
-  // TODO: Implement consolidation logic
-  // This would check if there are similar tools in different use cases
-  // that could be consolidated into one
+  tools: AITool[],
+  _useCases: string[] = []
 ): Recommendation[] {
-  return [];
+  // Simple heuristic: group known interchangeable tools (chat-style LLMs)
+  const groups: Record<string, string[]> = {
+    llm: ['ChatGPT', 'Claude', 'Cursor', 'Vertex AI'],
+    copilots: ['GitHub Copilot', 'Cursor'],
+  };
+
+  const recs: Recommendation[] = [];
+
+  // For each group, find matching tools
+  for (const groupName of Object.keys(groups)) {
+    const members = groups[groupName];
+    const present = tools.filter((t) => members.includes(t.name));
+
+    if (present.length <= 1) continue; // nothing to consolidate
+
+    // Recommend consolidating the less-used/cheaper ones into the highest-usage or lowest-cost primary
+    // Choose alternative as the tool with highest monthlySpend (common choice for continuity)
+    const alternative = present.reduce((a, b) => (a.monthlySpend >= b.monthlySpend ? a : b));
+
+    for (const t of present) {
+      if (t.id === alternative.id) continue;
+
+      // Only recommend consolidation for paid plans
+      if (t.currentPlan === 'free') continue;
+
+      recs.push({
+        toolId: t.id,
+        toolName: t.name,
+        type: 'consolidate',
+        reason: `Multiple ${groupName} tools detected. Consider consolidating into ${alternative.name}`,
+        // Conservative: consolidation suggestions are low-confidence and do not assume full savings here
+        estimatedSavings: 0,
+        alternative: alternative.name,
+        confidence: 'low',
+      });
+    }
+  }
+
+  return recs;
 }
 
 /**
