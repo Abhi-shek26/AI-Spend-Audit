@@ -23,8 +23,11 @@ I will finalize all 5 required answers on Day 7.
 - Manual verification done: reviewed all 8 test cases individually, ensured zero-savings guardrails work correctly, integrated rule by hand into engine cleanly, tested form localStorage with browser dev tools, manually routed form submission through sessionStorage.
 - AI mistake caught: initially suggested overly broad team-size matching logic; refined to focus on specific downgrades (solo user + paid plans only). Also initially forgot useEffect dependencies for localStorage sync.
 
-### Day 4 — YYYY-MM-DD
-- To be filled on Day 4.
+### Day 4 — 2026-05-09
+- AI used for: proposing consolidation-rule heuristics, outlining results-page structure, drafting the `/api/summary` server route, and suggesting share-link implementation flow.
+- AI not trusted for: direct savings assumptions for consolidation recommendations and final API correctness for Anthropic integration without manual checks.
+- Manual verification done: ran lint and tests repeatedly after each slice, adjusted consolidation savings to avoid double-counting, validated result/share flows in code, and checked CI behavior after pushes.
+- AI mistake caught: initial consolidation approach inflated `totalMonthlySavings` by counting overlapping recommendations; corrected by making consolidation savings conservative (`0`) and treating them as advisory.
 
 ### Day 5 — YYYY-MM-DD
 - To be filled on Day 5.
