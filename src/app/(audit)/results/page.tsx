@@ -22,10 +22,14 @@ export default function ResultsPage() {
   useEffect(() => {
     let mounted = true;
     if (result) {
-      // Use placeholder summary generator (won't call external API without key)
-      generateAuditSummary(result)
-        .then((s) => {
-          if (mounted) setSummary(s);
+      fetch('/api/summary', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(result),
+      })
+        .then((r) => r.json())
+        .then((data) => {
+          if (mounted) setSummary(data.summary || 'Summary unavailable');
         })
         .catch(() => {
           if (mounted) setSummary('Summary unavailable');
