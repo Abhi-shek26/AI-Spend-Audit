@@ -58,3 +58,23 @@
 - Add a `detectConsolidationOpportunities()` rule to identify overlapping tools that can be consolidated.
 - Start integrating AI summary generation (Anthropic/Claude) with a placeholder flow and environment-gated calls.
 
+## Day 4 — 2026-05-09
+**Hours worked:** 4
+**What I did:**
+- Implemented `detectConsolidationOpportunities()` and integrated it into the audit engine while keeping savings calculations conservative to avoid double-counting.
+- Added unit tests for consolidation behavior and re-validated the engine-level test suite.
+- Built the main results UI (`/audit/results`) with summary rendering, recommendation list, totals, and share-link generation.
+- Added server-side summary endpoint (`/api/summary`) for env-gated AI summary generation with safe fallbacks when API key is missing or request fails.
+- Implemented dynamic share route (`/audit/results/[id]`) and local persistence utility for shareable result URLs.
+- Resolved lint/CI issues introduced by new pages (setState-in-effect rules, unused bindings) and re-ran lint/tests until green.
+**What I learned:**
+- Consolidation recommendations should be separated from hard savings assumptions unless confidence is high and overlap is measurable.
+- For React lint rules, state initialization patterns are often cleaner than setting state synchronously inside `useEffect`.
+- Shipping Day 4 in small vertical slices (rule -> tests -> UI -> API -> lint fixes) reduced debugging overhead and kept commits reviewable.
+**Blockers / what I'm stuck on:**
+- No hard blockers; local share links currently rely on browser localStorage and are not cross-device yet.
+**Plan for tomorrow:**
+- Add server-backed persistence for shared results so links work across devices/sessions.
+- Improve results UX (sorting/filtering/export options).
+- Continue tightening AI summary integration with modern Anthropic API format and better error handling.
+
