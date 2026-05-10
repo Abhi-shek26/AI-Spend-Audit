@@ -78,3 +78,23 @@
 - Improve results UX (sorting/filtering/export options).
 - Continue tightening AI summary integration with modern Anthropic API format and better error handling.
 
+## Day 5 — 2026-05-10
+**Hours worked:** 4
+**What I did:**
+- Implemented server-backed shared-result persistence endpoints:
+	- `POST /api/audit/save` saves an `AuditResult` to `shared_results.json` and returns a shareable URL.
+	- `GET /api/audit/get/[id]` retrieves a saved result by id.
+- Updated the results page to prefer the server save API when creating share links, with a local-storage fallback.
+- Updated the dynamic shared results page to fetch results from the server API and fall back to local storage when not available.
+- Kept local development and CI green by iterating on lint and tests; all unit tests pass and lint is clean.
+**What I learned:**
+- File-based server persistence is a pragmatic short-term approach for demos, but should be replaced by a DB (Supabase) for production.
+- Using a small API layer makes share links cross-device and simplifies client logic compared to purely localStorage-based sharing.
+- Iterating in small slices (client -> server -> fallback) reduces regressions and keeps the test surface small.
+**Blockers / what I'm stuck on:**
+- No blockers; next improvement is migrating the store to Supabase or another persistent data store.
+**Plan for tomorrow:**
+- Migrate shared-results storage to Supabase and add server-side validation.
+- Add export/CSV and shareable public download options for results.
+- Improve Anthropic summary parsing and error handling with retries and rate-limit backoff.
+

@@ -29,6 +29,12 @@ I will finalize all 5 required answers on Day 7.
 - Manual verification done: ran lint and tests repeatedly after each slice, adjusted consolidation savings to avoid double-counting, validated result/share flows in code, and checked CI behavior after pushes.
 - AI mistake caught: initial consolidation approach inflated `totalMonthlySavings` by counting overlapping recommendations; corrected by making consolidation savings conservative (`0`) and treating them as advisory.
 
+### Day 5 — 2026-05-10
+- AI used for: designing the server-backed share API, suggesting fallback strategies (localStorage fallback), and drafting the results-page client/server interactions.
+- AI not trusted for: file-based persistence decisions and production-grade security assumptions; these are manually reviewed before merging.
+- Manual verification done: implemented `POST /api/audit/save` and `GET /api/audit/get/[id]`, exercised the end-to-end share flow in browser, verified fallback behavior, and ran full test + lint cycles.
+- AI mistake caught: initial reliance on purely client-side sharing (localStorage) would not work cross-device — switched to server-backed persistence with a local fallback.
+
 ### Day 5 — YYYY-MM-DD
 - To be filled on Day 5.
 
