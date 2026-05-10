@@ -7,11 +7,28 @@ import { getSharedAuditResult } from '@/lib/audit/share';
 
 export default function SharedResultsPage() {
   const params = useParams<{ id: string }>();
-  const [result] = useState<AuditResult | null>(() => {
+  const [result, setResult] = useState<AuditResult | null>(null);
+
+  useEffect(() => {
     const id = params?.id;
-    if (!id) return null;
-    return getSharedAuditResult(id);
-  });
+    if (!id) return;
+
+    fetch(`/api/audit/get/${encodeURIComponent(id)}`)
+      .then((r) => r.json())
+      .then((payload) => {
+        if (payload?.success && payload.data) {
+          setResult(payload.data as AuditResult);
+        } else {
+          // fallback to local shared results when server-side copy is not available
+          const local = getSharedAuditResult(id);
+          if (local) setResult(local);
+        }
+      })
+      .catch(() => {
+        const local = getSharedAuditResult(id);
+        if (local) setResult(local);
+      });
+  }, [params]);
 
   if (!result) {
     return (

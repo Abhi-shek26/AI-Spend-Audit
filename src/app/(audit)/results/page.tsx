@@ -42,14 +42,26 @@ export default function ResultsPage() {
   const handleCreateShareLink = async () => {
     if (!result) return;
 
-    saveSharedAuditResult(result);
-    const url = `${window.location.origin}/audit/results/${result.id}`;
-    setShareUrl(url);
-
     try {
-      await navigator.clipboard.writeText(url);
+      const resp = await fetch('/api/audit/save', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(result),
+      });
+      const payload = await resp.json();
+      if (payload?.url) {
+        setShareUrl(payload.url);
+        try {
+          await navigator.clipboard.writeText(payload.url);
+        } catch {
+          // ignore
+        }
+      }
     } catch {
-      // ignore clipboard errors
+      // fallback to local share
+      saveSharedAuditResult(result);
+      const url = `${window.location.origin}/audit/results/${result.id}`;
+      setShareUrl(url);
     }
   };
 
