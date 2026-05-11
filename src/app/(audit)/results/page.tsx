@@ -15,7 +15,7 @@ export default function ResultsPage() {
     return null;
   });
   const [summary, setSummary] = useState<string>('');
-  const [shareUrl, setShareUrl] = useState<string>('');
+  const [shareUrl, setShareUrl] = useState<string | null>(null);
 
   useEffect(() => {
     let mounted = true;

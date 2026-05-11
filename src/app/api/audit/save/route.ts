@@ -1,22 +1,6 @@
 import { NextResponse } from 'next/server';
-import fs from 'fs/promises';
-import path from 'path';
+import { supabase } from '@/lib/supabase';
 import type { AuditResult } from '@/lib/audit/types';
-
-const STORE_PATH = path.join(process.cwd(), 'shared_results.json');
-
-async function readStore(): Promise<Record<string, AuditResult>> {
-  try {
-    const raw = await fs.readFile(STORE_PATH, 'utf-8');
-    return JSON.parse(raw) as Record<string, AuditResult>;
-  } catch {
-    return {};
-  }
-}
-
-async function writeStore(data: Record<string, AuditResult>) {
-  await fs.writeFile(STORE_PATH, JSON.stringify(data, null, 2), 'utf-8');
-}
 
 export async function POST(request: Request) {
   try {
@@ -27,14 +11,21 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Invalid audit result' }, { status: 400 });
     }
 
-    const store = await readStore();
-    store[result.id] = result;
-    await writeStore(store);
+    const { data, error } = await supabase
+      .from('audit_results')
+      .insert([{ data: result }])
+      .select('id')
+      .single();
+
+    if (error) {
+      return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+    }
 
     const url = `${process.env.NEXT_PUBLIC_APP_URL || ''}/audit/results/${result.id}`;
 
     return NextResponse.json({ success: true, id: result.id, url });
-  } catch {
-    return NextResponse.json({ success: false, error: 'Failed to save result' }, { status: 500 });
+  } catch (err) {
+    const errorMsg = err instanceof Error ? err.message : 'Failed to save result';
+    return NextResponse.json({ success: false, error: errorMsg }, { status: 500 });
   }
 }

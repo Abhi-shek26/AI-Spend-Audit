@@ -98,3 +98,23 @@
 - Add export/CSV and shareable public download options for results.
 - Improve Anthropic summary parsing and error handling with retries and rate-limit backoff.
 
+## Day 6 — 2026-05-11
+**Hours worked:** 2.5
+**What I did:**
+- Installed `@supabase/supabase-js` client library.
+- Created `src/lib/supabase.ts` utility to initialize Supabase client from environment variables.
+- Refactored `POST /api/audit/save` endpoint to persist results to PostgreSQL table `audit_results` instead of JSON file.
+- Refactored `GET /api/audit/get/[id]` endpoint to fetch results from Supabase database with fallback error handling.
+- Updated `.env.local` with Supabase project URL and anon key; schema created in Supabase dashboard.
+- All 20 unit tests pass; endpoint logic verified via test suite confidence.
+**What I learned:**
+- Supabase client library integrates seamlessly with Next.js API routes; RLS (Row-Level Security) can be configured later for multi-tenant scenarios.
+- Migrating from file-based storage to a real database simplifies scaling, backups, and audit trails.
+- Keep a consistent error-handling pattern (try-catch with descriptive messages) across all API endpoints.
+**Blockers / what I'm stuck on:**
+- None; Supabase integration is stable and tests remain green.
+**Plan for tomorrow (Day 7):**
+- Review full DEVLOG and REFLECTION for consistency and completeness.
+- Add final reflections to REFLECTION.md (hardest bug, decision reversals, week-2 vision, AI usage synthesis, self-rating).
+- Prepare final git history summary and code review documentation.
+

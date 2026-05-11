@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import type { AuditResult } from '@/lib/audit/types';
 import { getSharedAuditResult } from '@/lib/audit/share';

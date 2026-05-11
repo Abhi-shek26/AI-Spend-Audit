@@ -38,8 +38,11 @@ I will finalize all 5 required answers on Day 7.
 ### Day 5 — YYYY-MM-DD
 - To be filled on Day 5.
 
-### Day 6 — YYYY-MM-DD
-- To be filled on Day 6.
+### Day 6 — 2026-05-11
+- AI used for: proposing Supabase schema design, suggesting API endpoint refactoring patterns for async Supabase client integration, and outlining the migration strategy from file to database.
+- AI not trusted for: production security decisions (RLS policies, authentication flow design); these remain for future work.
+- Manual verification done: created table schema manually in Supabase console, refactored both API endpoints in isolation, verified error handling matches existing patterns, and ran full test suite to ensure audit engine remains unaffected.
+- AI mistake caught: initial suggestion to keep file-based persistence "just in case" — kept local fallback utility for development resilience, but primary flow now routes through Supabase.
 
 ### Day 7 — YYYY-MM-DD
 - To be filled on Day 7.
