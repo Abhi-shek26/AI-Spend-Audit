@@ -32,9 +32,20 @@ export default function AuditForm({ onSubmit }: { onSubmit: (data: FormState) =>
     useCases: '',
   };
 
-  const [formState, setFormState] = useState<FormState>(defaultState);
-  const [isHydrated, setIsHydrated] = useState(false);
+ const [formState, setFormState] = useState<FormState>(() => {
+  if (typeof window !== 'undefined') {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        return JSON.parse(saved) as FormState;
+      }
+    } catch {
+      // ignore parse errors
+    }
+  }
 
+  return defaultState;
+});
   const [newTool, setNewTool] = useState<NewToolState>({
     name: TOOLS_LIST[0],
     currentPlan: 'pro',
@@ -43,19 +54,6 @@ export default function AuditForm({ onSubmit }: { onSubmit: (data: FormState) =>
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
-
-  // Hydrate from localStorage once on client, and save on subsequent changes
-  useEffect(() => {
-    try {
-      const saved = localStorage.getItem(STORAGE_KEY);
-      if (saved) {
-        setFormState(JSON.parse(saved) as FormState);
-      }
-    } catch {
-      // ignore parse errors
-    }
-    setIsHydrated(true);
-  }, []);
 
   useEffect(() => {
     try {
@@ -129,17 +127,6 @@ export default function AuditForm({ onSubmit }: { onSubmit: (data: FormState) =>
 
   const totalSpend = formState.tools.reduce((sum, tool) => sum + tool.monthlySpend, 0);
 
-  // Defer rendering until hydration is complete to prevent hydration mismatch
-  if (!isHydrated) {
-    return (
-      <div className="w-full max-w-4xl mx-auto px-4 py-8">
-        <div className="bg-slate-100 rounded-lg p-8 animate-pulse">
-          <div className="h-12 bg-slate-200 rounded mb-4" />
-          <div className="h-8 bg-slate-200 rounded" />
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="w-full max-w-4xl mx-auto px-4 py-8">
