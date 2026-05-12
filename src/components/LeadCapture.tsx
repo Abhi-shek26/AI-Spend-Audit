@@ -15,6 +15,7 @@ declare global {
       reset: () => void;
       getResponse: () => string;
     };
+    onHcaptchaLoad?: () => void;
   }
 }
 
@@ -57,8 +58,7 @@ export default function LeadCapture({ auditId, savings, onSuccess }: LeadCapture
     };
 
     // Store callback on window for hCaptcha to call
-    (window as any).onHcaptchaLoad = onHcaptchaLoad;
-
+    window.onHcaptchaLoad = onHcaptchaLoad;
     // Check if script already exists
     if (document.querySelector('script[src*="hcaptcha"]')) {
       // Script already loaded, try to render if hCaptcha is ready

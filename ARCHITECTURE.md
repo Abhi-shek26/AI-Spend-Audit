@@ -616,7 +616,7 @@ export const PRICING_RULES = { /* exposed to browser */ };
 
 ## 📋 Implementation Checklist
 
-### **Phase 1: MVP (Week 1-2)**
+### **Phase 1: MVP (Day 1-2)**
 - [ ] Implement 3-5 core rules in `src/lib/audit/rules.ts`
 - [ ] Build multi-step form component
 - [ ] Create `/api/audit/evaluate` route
@@ -625,7 +625,7 @@ export const PRICING_RULES = { /* exposed to browser */ };
 - [ ] Add Open Graph meta tags
 - [ ] Unit tests for engine (aim for 80% coverage)
 
-### **Phase 2: Polish (Week 2-3)**
+### **Phase 2: Polish (Day 2-3)**
 - [ ] Claude integration for summaries
 - [ ] Lead capture form
 - [ ] Email verification via Supabase Auth
@@ -633,7 +633,7 @@ export const PRICING_RULES = { /* exposed to browser */ };
 - [ ] Error handling & edge cases
 - [ ] E2E tests
 
-### **Phase 3: Scale (Week 3+)**
+### **Phase 3: Scale (Day 3+)**
 - [ ] Add Redis caching
 - [ ] Set up job queue for Claude
 - [ ] Database indexing & archival
@@ -668,5 +668,3 @@ This architecture is:
 - ✅ **Scalable:** Ready for 10k+/day with simple optimizations
 - ✅ **Maintainable:** Clear responsibilities for each layer
 - ✅ **Startup-friendly:** Low ops overhead, uses managed services
-
-Ready to implement? Start with the audit engine tests—that's the core value.

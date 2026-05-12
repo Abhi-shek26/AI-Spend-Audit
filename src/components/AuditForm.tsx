@@ -49,13 +49,11 @@ export default function AuditForm({ onSubmit }: { onSubmit: (data: FormState) =>
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
       if (saved) {
-        // eslint-disable-next-line react-hooks/set-state-in-effect
         setFormState(JSON.parse(saved) as FormState);
       }
     } catch {
       // ignore parse errors
     }
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsHydrated(true);
   }, []);
 

@@ -35,9 +35,6 @@ I will finalize all 5 required answers on Day 7.
 - Manual verification done: implemented `POST /api/audit/save` and `GET /api/audit/get/[id]`, exercised the end-to-end share flow in browser, verified fallback behavior, and ran full test + lint cycles.
 - AI mistake caught: initial reliance on purely client-side sharing (localStorage) would not work cross-device — switched to server-backed persistence with a local fallback.
 
-### Day 5 — YYYY-MM-DD
-- To be filled on Day 5.
-
 ### Day 6 — 2026-05-11
 - AI used for: proposing Supabase schema design, suggesting API endpoint refactoring patterns for async Supabase client integration, and outlining the migration strategy from file to database.
 - AI not trusted for: production security decisions (RLS policies, authentication flow design); these remain for future work.
