@@ -118,3 +118,26 @@
 - Add final reflections to REFLECTION.md (hardest bug, decision reversals, week-2 vision, AI usage synthesis, self-rating).
 - Prepare final git history summary and code review documentation.
 
+## Day 7 — 2026-05-12
+**Hours worked:** 5.5
+**What I did:**
+- Implemented the remaining launch features in sequence: PDF export, embeddable widget, benchmark mode, referral codes, and marketing content.
+- Added `src/lib/pdf/exporter.ts` with `jsPDF` and wired PDF download buttons into the results views.
+- Built `public/widget.js` and `src/app/widget/page.tsx` to support lightweight embedded audits on external sites.
+- Added `src/lib/audit/benchmarks.ts` plus `BenchmarkDisplay.tsx` to compare spending against benchmark scenarios.
+- Added `src/lib/audit/referrals.ts` and `ReferralShare.tsx` for referral code generation, sharing, and reward tiers.
+- Wrote marketing collateral files for launch distribution: blog post, email templates, press kit, and Twitter threads.
+- Fixed hydration mismatch behavior in `AuditForm` by hydrating after mount and rendering a loading placeholder until the client is ready.
+- Improved referral database error handling so missing Supabase tables now fall back gracefully with a clear console warning and SQL setup guidance.
+- Verified the app still builds after the feature work and documented the new behavior in the UI and supporting files.
+**What I learned:**
+- It is safer to treat optional backend dependencies as best-effort features rather than hard failures, especially during local development.
+- Client hydration should be deferred when browser-only state is involved, otherwise SSR markup can drift from the first client render.
+- Launch materials are easiest to keep current when they are written alongside the feature work instead of after the fact.
+**Blockers / what I'm stuck on:**
+- No major blockers; the main remaining work is documentation polish and final verification.
+**Plan for next steps:**
+- Finish the documentation set and CI workflow.
+- Verify the referral flow and shared-result flow in the local browser.
+- Prepare the final handoff summary.
+

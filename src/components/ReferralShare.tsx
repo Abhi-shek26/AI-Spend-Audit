@@ -89,7 +89,7 @@ export default function ReferralShare({ referralCode, shareUrl }: ReferralShareP
       </div>
 
       {/* Rewards Tier */}
-      <div className="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-300 p-4 rounded-md">
+      <div className="bg-linear-to-r from-amber-50 to-orange-50 border border-amber-300 p-4 rounded-md">
         <div className="flex items-center justify-between mb-3">
           <h3 className="font-semibold text-slate-900">Referral Rewards</h3>
           <span className={`px-3 py-1 rounded-full text-sm font-semibold ${
