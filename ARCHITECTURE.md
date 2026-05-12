@@ -8,26 +8,21 @@
 
 ## 📊 System Overview
 
-```
-┌─────────────────────────────────────────────────────────────┐
-│                      USER JOURNEY                            │
-├─────────────────────────────────────────────────────────────┤
-│                                                               │
-│  1. Fill Form          2. Submit              3. View Results│
-│  (localStorage)        (API Call)             (Share URL)     │
-│         │                    │                     │          │
-│         ↓                    ↓                     ↓          │
-│    [React Form] ──→ [Audit Engine] ────→ [Report Page]      │
-│                          │                        │          │
-│                   Deterministic Logic    (Open Graph Meta)   │
-│                   (Pure TypeScript)      (SEO Friendly)      │
-│                          │                        │          │
-│                   [Save to Supabase] ←──────────┘           │
-│                                                               │
-│  4. Lead Capture (Optional)           5. AI Summary (Async)  │
-│    [Email Form] ──→ [Leads Table]     Claude API Call       │
-│                                                               │
-└─────────────────────────────────────────────────────────────┘
+```mermaid
+flowchart LR
+  U[User] --> F[Audit Form]
+  F --> LS[(localStorage)]
+  F --> API[POST /api/audit/evaluate]
+  API --> E[Audit Engine\nPure TypeScript rules]
+  E --> DB[(Supabase audit_results)]
+  E --> R[Results Page]
+  R --> OG[Open Graph meta + share URL]
+  R --> L[Lead Capture Form]
+  L --> LEADS[(Supabase leads)]
+  API --> S[Async AI Summary]
+  S --> CLAUDE[Claude API]
+  CLAUDE --> DB
+  DB --> PUB[Public report page]
 ```
 
 ---
