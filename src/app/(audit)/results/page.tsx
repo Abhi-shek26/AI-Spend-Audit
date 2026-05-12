@@ -3,6 +3,11 @@
 import { useEffect, useState } from 'react';
 import { AuditResult, Recommendation } from '@/lib/audit/types';
 import { saveSharedAuditResult } from '@/lib/audit/share';
+import { downloadAuditPDF } from '@/lib/pdf/exporter';
+import { calculateBenchmarkComparison } from '@/lib/audit/benchmarks';
+import { createReferral } from '@/lib/audit/referrals';
+import BenchmarkDisplay from '@/components/BenchmarkDisplay';
+import ReferralShare from '@/components/ReferralShare';
 import LeadCapture from '@/components/LeadCapture';
 
 function getDisplayTotals(result: AuditResult) {
@@ -26,6 +31,8 @@ export default function ResultsPage() {
   const [result, setResult] = useState<AuditResult | null>(null);
   const [summary, setSummary] = useState<string>('');
   const [shareUrl, setShareUrl] = useState<string | null>(null);
+  const [isDownloadingPDF, setIsDownloadingPDF] = useState(false);
+  const [referralCode, setReferralCode] = useState<string | null>(null);
 
   // Hydrate result from sessionStorage on client mount
   useEffect(() => {
@@ -39,6 +46,19 @@ export default function ResultsPage() {
       // ignore
     }
   }, []);
+
+  // Generate referral code when result is available
+  useEffect(() => {
+    if (result && !referralCode) {
+      createReferral(result.id)
+        .then((referral) => {
+          if (referral) {
+            setReferralCode(referral.code);
+          }
+        })
+        .catch((err) => console.error('Failed to create referral:', err));
+    }
+  }, [result, referralCode]);
 
   useEffect(() => {
     let mounted = true;
@@ -65,6 +85,20 @@ export default function ResultsPage() {
       mounted = false;
     };
   }, [result]);
+
+  const handleDownloadPDF = async () => {
+    if (!result || !summary) return;
+
+    setIsDownloadingPDF(true);
+    try {
+      await downloadAuditPDF(result, summary);
+    } catch (error) {
+      console.error('PDF download failed:', error);
+      alert('Failed to download PDF. Please try again.');
+    } finally {
+      setIsDownloadingPDF(false);
+    }
+  };
 
   const handleCreateShareLink = async () => {
     if (!result) return;
@@ -140,13 +174,23 @@ export default function ResultsPage() {
           )}
         </div>
         <div className="mt-6 flex flex-col gap-2">
-          <button
-            type="button"
-            onClick={handleCreateShareLink}
-            className="w-fit rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-700"
-          >
-            Create Share Link
-          </button>
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={handleCreateShareLink}
+              className="flex-1 rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-700"
+            >
+              Create Share Link
+            </button>
+            <button
+              type="button"
+              onClick={handleDownloadPDF}
+              disabled={isDownloadingPDF || !summary}
+              className="flex-1 rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:bg-slate-400 disabled:cursor-not-allowed"
+            >
+              {isDownloadingPDF ? 'Generating PDF...' : 'Download PDF'}
+            </button>
+          </div>
           {shareUrl && (
             <p className="text-xs text-slate-500 break-all">
               Share URL: {shareUrl}
@@ -154,6 +198,17 @@ export default function ResultsPage() {
           )}
         </div>
       </section>
+
+      {result && (
+        <BenchmarkDisplay
+          comparison={calculateBenchmarkComparison(
+            result.input.tools.length,
+            result.input.totalMonthlySpend,
+            result.input.teamSize,
+            result.input.teamSize === 'solo' ? 1 : result.input.teamSize === 'small' ? 5 : result.input.teamSize === 'medium' ? 15 : 30
+          )}
+        />
+      )}
 
       <section className="mb-6 bg-white p-6 rounded-md border">
         <h2 className="text-lg font-semibold">Recommendations ({result.recommendations.length})</h2>
@@ -174,6 +229,13 @@ export default function ResultsPage() {
         <p className="mt-2">Total monthly savings: ${displayTotals.totalMonthlySavings}</p>
         <p>Savings percentage: {displayTotals.savingsPercentage}%</p>
       </section>
+
+      {result && referralCode && (
+        <ReferralShare
+          referralCode={referralCode}
+          shareUrl={`${typeof window !== 'undefined' ? window.location.origin : ''}/audit/results`}
+        />
+      )}
 
       <section className="mt-6">
         <LeadCapture 

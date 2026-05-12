@@ -32,20 +32,8 @@ export default function AuditForm({ onSubmit }: { onSubmit: (data: FormState) =>
     useCases: '',
   };
 
- const [formState, setFormState] = useState<FormState>(() => {
-  if (typeof window !== 'undefined') {
-    try {
-      const saved = localStorage.getItem(STORAGE_KEY);
-      if (saved) {
-        return JSON.parse(saved) as FormState;
-      }
-    } catch {
-      // ignore parse errors
-    }
-  }
-
-  return defaultState;
-});
+  const [isHydrated, setIsHydrated] = useState(false);
+  const [formState, setFormState] = useState<FormState>(defaultState);
   const [newTool, setNewTool] = useState<NewToolState>({
     name: TOOLS_LIST[0],
     currentPlan: 'pro',
@@ -54,14 +42,29 @@ export default function AuditForm({ onSubmit }: { onSubmit: (data: FormState) =>
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
-
+  // Hydrate from localStorage after mount
   useEffect(() => {
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(formState));
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        setFormState(JSON.parse(saved) as FormState);
+      }
     } catch {
-      // ignore serialization errors
+      // ignore parse errors
     }
-  }, [formState]);
+    setIsHydrated(true);
+  }, []);
+
+
+  useEffect(() => {
+    if (isHydrated) {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(formState));
+      } catch {
+        // ignore serialization errors
+      }
+    }
+  }, [formState, isHydrated]);
 
   const validateNewTool = (): boolean => {
     const newErrors: Record<string, string> = {};
@@ -127,6 +130,17 @@ export default function AuditForm({ onSubmit }: { onSubmit: (data: FormState) =>
 
   const totalSpend = formState.tools.reduce((sum, tool) => sum + tool.monthlySpend, 0);
 
+
+  if (!isHydrated) {
+    return (
+      <div className="w-full max-w-4xl mx-auto px-4 py-8">
+        <div className="animate-pulse space-y-4">
+          <div className="h-6 bg-slate-200 rounded w-1/3" />
+          <div className="h-48 bg-slate-100 rounded" />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="w-full max-w-4xl mx-auto px-4 py-8">

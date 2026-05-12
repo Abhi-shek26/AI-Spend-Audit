@@ -2,8 +2,13 @@
 
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
-import type { AuditResult } from '@/lib/audit/types';
+import type { AuditResult, Recommendation } from '@/lib/audit/types';
 import { getSharedAuditResult } from '@/lib/audit/share';
+import { downloadAuditPDF } from '@/lib/pdf/exporter';
+import { calculateBenchmarkComparison } from '@/lib/audit/benchmarks';
+import { createReferral } from '@/lib/audit/referrals';
+import BenchmarkDisplay from '@/components/BenchmarkDisplay';
+import ReferralShare from '@/components/ReferralShare';
 
 function getDisplayTotals(result: AuditResult) {
   const derivedMonthlySavings = result.recommendations.reduce(
@@ -25,6 +30,9 @@ function getDisplayTotals(result: AuditResult) {
 export default function SharedResultsPage() {
   const params = useParams<{ id: string }>();
   const [result, setResult] = useState<AuditResult | null>(null);
+  const [summary, setSummary] = useState<string>('');
+  const [isDownloadingPDF, setIsDownloadingPDF] = useState(false);
+  const [referralCode, setReferralCode] = useState<string | null>(null);
 
   useEffect(() => {
     const id = params?.id;
@@ -47,6 +55,59 @@ export default function SharedResultsPage() {
       });
   }, [params]);
 
+  useEffect(() => {
+    let mounted = true;
+    if (result) {
+      fetch('/api/summary', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(result),
+      })
+        .then((r) => {
+          if (!r.ok) throw new Error(`Summary API error: ${r.status}`);
+          return r.json();
+        })
+        .then((data) => {
+          if (mounted) setSummary(data.summary || 'Summary unavailable');
+        })
+        .catch((err) => {
+          console.error('Summary generation failed', err);
+          if (mounted) setSummary('Summary unavailable');
+        });
+    }
+
+    return () => {
+      mounted = false;
+    };
+  }, [result]);
+
+  const handleDownloadPDF = async () => {
+    if (!result || !summary) return;
+
+    setIsDownloadingPDF(true);
+    try {
+      await downloadAuditPDF(result, summary);
+    } catch (error) {
+      console.error('PDF download failed:', error);
+      alert('Failed to download PDF. Please try again.');
+    } finally {
+      setIsDownloadingPDF(false);
+    }
+  };
+
+  // Generate referral code when result is available
+  useEffect(() => {
+    if (result && !referralCode) {
+      createReferral(result.id)
+        .then((referral) => {
+          if (referral) {
+            setReferralCode(referral.code);
+          }
+        })
+        .catch((err) => console.error('Failed to create referral:', err));
+    }
+  }, [result, referralCode]);
+
   if (!result) {
     return (
       <div className="max-w-3xl mx-auto px-4 py-10">
@@ -62,22 +123,85 @@ export default function SharedResultsPage() {
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold">Shared Audit Result</h1>
-      <p className="mt-1 text-sm text-slate-600">ID: {result.id}</p>
+      <header className="mb-6">
+        <h1 className="text-3xl font-bold">Shared Audit Result</h1>
+        <p className="mt-1 text-sm text-slate-600">ID: {result.id} • {new Date(result.timestamp).toLocaleString()}</p>
+      </header>
 
-      <section className="mt-6 rounded-md border bg-white p-5">
+      <section className="mb-6 bg-white p-6 rounded-md border">
+        <h2 className="text-lg font-semibold">Summary</h2>
+        <div className="mt-4 text-slate-700 space-y-4">
+          {summary ? (
+            <>
+              {summary.split('\n\n').map((section, idx) => {
+                const lines = section.trim().split('\n');
+                const header = lines[0];
+                const isHeader = header.match(/^[A-Z\s]+:$/);
+
+                if (isHeader) {
+                  return (
+                    <div key={idx}>
+                      <h3 className="font-semibold text-slate-900 mb-2">{header}</h3>
+                      <div className="ml-2 text-sm text-slate-700 space-y-1">
+                        {lines.slice(1).map((line, i) => (
+                          <p key={i}>{line}</p>
+                        ))}
+                      </div>
+                    </div>
+                  );
+                }
+                return <p key={idx}>{section}</p>;
+              })}
+            </>
+          ) : (
+            'Generating summary...'
+          )}
+        </div>
+        <div className="mt-6 flex gap-2">
+          <button
+            type="button"
+            onClick={handleDownloadPDF}
+            disabled={isDownloadingPDF || !summary}
+            className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:bg-slate-400 disabled:cursor-not-allowed"
+          >
+            {isDownloadingPDF ? 'Generating PDF...' : 'Download PDF'}
+          </button>
+        </div>
+      </section>
+
+      {result && (
+        <BenchmarkDisplay
+          comparison={calculateBenchmarkComparison(
+            result.input.tools.length,
+            result.input.totalMonthlySpend,
+            result.input.teamSize,
+            result.input.teamSize === 'solo' ? 1 : result.input.teamSize === 'small' ? 5 : result.input.teamSize === 'medium' ? 15 : 30
+          )}
+        />
+      )}
+
+      <section className="mb-6 rounded-md border bg-white p-5">
         <h2 className="text-lg font-semibold">Totals</h2>
         <p className="mt-2">Total monthly savings: ${displayTotals.totalMonthlySavings}</p>
         <p>Savings percentage: {displayTotals.savingsPercentage}%</p>
       </section>
 
-      <section className="mt-6 rounded-md border bg-white p-5">
+      {result && referralCode && (
+        <ReferralShare
+          referralCode={referralCode}
+          shareUrl={`${typeof window !== 'undefined' ? window.location.origin : ''}/audit/results/${result.id}`}
+        />
+      )}
+
+      <section className="rounded-md border bg-white p-5">
         <h2 className="text-lg font-semibold">Recommendations ({result.recommendations.length})</h2>
         <ul className="mt-3 space-y-2">
-          {result.recommendations.map((rec) => (
+          {result.recommendations.map((rec: Recommendation) => (
             <li key={`${rec.toolId}-${rec.type}`} className="rounded-md border p-3">
-              <p className="font-medium">{rec.toolName} - {rec.type}</p>
+              <p className="font-medium">{rec.toolName} — {rec.type}</p>
               <p className="text-sm text-slate-600">{rec.reason}</p>
+              <p className="text-sm text-slate-700 mt-1">Estimated savings: ${rec.estimatedSavings}/mo • Confidence: {rec.confidence}</p>
+              {rec.alternative && <p className="text-sm text-slate-500 mt-1">Alternative: {rec.alternative}</p>}
             </li>
           ))}
         </ul>
