@@ -202,7 +202,11 @@ Current architecture handles:
 
 ## 📸 Screenshots / Demo
 
-**Coming soon:** [ Screen Recording](<video controls src="Demo_AI_Spend_Audit.mp4" title="Demo Video"></video>)
+**Coming soon:** [ Screen Recording](
+
+https://github.com/user-attachments/assets/75837b76-717b-4d9e-847f-4943638bfcd0
+
+)
 
 1. **Audit Form:** Select tools, spending, team size
 2. **Results Page:** Recommendations + savings + export buttons
