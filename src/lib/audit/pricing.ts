@@ -36,6 +36,30 @@ export const TOOL_PRICING: Record<string, PricingTable> = {
     team: { cost: 19 },
     enterprise: { cost: 39 },
   },
+  'Vertex AI': {
+    free: { cost: 0 },
+    pro: { cost: 25 },
+    team: { cost: 45 },
+    enterprise: { cost: 80 },
+  },
+  'OpenAI API': {
+    free: { cost: 0 },
+    pro: { cost: 0 }, // Pay-per-token
+    team: { cost: 0 }, // Pay-per-token
+    enterprise: { cost: 0 }, // Custom pricing
+  },
+  Gemini: {
+    free: { cost: 0 },
+    pro: { cost: 20 },
+    team: { cost: 0 }, // No official team plan
+    enterprise: { cost: 0 }, // Custom pricing
+  },
+  Windsurf: {
+    free: { cost: 0 },
+    pro: { cost: 20 },
+    team: { cost: 0 }, // No official team plan
+    enterprise: { cost: 0 }, // Custom pricing
+  },
 };
 
 export function getPricingForTool(toolName: AITool['name']): PricingTable | undefined {

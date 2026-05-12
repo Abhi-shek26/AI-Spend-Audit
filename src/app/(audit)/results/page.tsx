@@ -2,20 +2,24 @@
 
 import { useEffect, useState } from 'react';
 import { AuditResult, Recommendation } from '@/lib/audit/types';
-import { saveSharedAuditResult } from '@/lib/audit/share';
-
+import { saveSharedAuditResult } from '@/lib/audit/share';import LeadCapture from '@/components/LeadCapture';
 export default function ResultsPage() {
-  const [result] = useState<AuditResult | null>(() => {
+  const [result, setResult] = useState<AuditResult | null>(null);
+  const [summary, setSummary] = useState<string>('');
+  const [shareUrl, setShareUrl] = useState<string | null>(null);
+
+  // Hydrate result from sessionStorage on client mount
+  useEffect(() => {
     try {
       const raw = sessionStorage.getItem('audit-result');
-      if (raw) return JSON.parse(raw) as AuditResult;
+      if (raw) {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        setResult(JSON.parse(raw) as AuditResult);
+      }
     } catch {
       // ignore
     }
-    return null;
-  });
-  const [summary, setSummary] = useState<string>('');
-  const [shareUrl, setShareUrl] = useState<string | null>(null);
+  }, []);
 
   useEffect(() => {
     let mounted = true;
@@ -25,11 +29,15 @@ export default function ResultsPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(result),
       })
-        .then((r) => r.json())
+        .then((r) => {
+          if (!r.ok) throw new Error(`Summary API error: ${r.status}`);
+          return r.json();
+        })
         .then((data) => {
           if (mounted) setSummary(data.summary || 'Summary unavailable');
         })
-        .catch(() => {
+        .catch((err) => {
+          console.error('Summary generation failed', err);
           if (mounted) setSummary('Summary unavailable');
         });
     }
@@ -83,8 +91,34 @@ export default function ResultsPage() {
 
       <section className="mb-6 bg-white p-6 rounded-md border">
         <h2 className="text-lg font-semibold">Summary</h2>
-        <p className="mt-2 text-slate-700">{summary || 'Generating summary...'}</p>
-        <div className="mt-4 flex flex-col gap-2">
+        <div className="mt-4 text-slate-700 space-y-4">
+          {summary ? (
+            <>
+              {summary.split('\n\n').map((section, idx) => {
+                const lines = section.trim().split('\n');
+                const header = lines[0];
+                const isHeader = header.match(/^[A-Z\s]+:$/);
+
+                if (isHeader) {
+                  return (
+                    <div key={idx}>
+                      <h3 className="font-semibold text-slate-900 mb-2">{header}</h3>
+                      <div className="ml-2 text-sm text-slate-700 space-y-1">
+                        {lines.slice(1).map((line, i) => (
+                          <p key={i}>{line}</p>
+                        ))}
+                      </div>
+                    </div>
+                  );
+                }
+                return <p key={idx}>{section}</p>;
+              })}
+            </>
+          ) : (
+            'Generating summary...'
+          )}
+        </div>
+        <div className="mt-6 flex flex-col gap-2">
           <button
             type="button"
             onClick={handleCreateShareLink}
@@ -104,7 +138,7 @@ export default function ResultsPage() {
         <h2 className="text-lg font-semibold">Recommendations ({result.recommendations.length})</h2>
         <ul className="mt-3 space-y-3">
           {result.recommendations.map((rec: Recommendation) => (
-            <li key={rec.toolId} className="p-3 border rounded-md">
+            <li key={`${rec.toolId}-${rec.type}`} className="p-3 border rounded-md">
               <p className="font-medium">{rec.toolName} — {rec.type}</p>
               <p className="text-sm text-slate-600">{rec.reason}</p>
               <p className="text-sm text-slate-700 mt-1">Estimated savings: ${rec.estimatedSavings}/mo • Confidence: {rec.confidence}</p>
@@ -118,6 +152,14 @@ export default function ResultsPage() {
         <h2 className="text-lg font-semibold">Totals</h2>
         <p className="mt-2">Total monthly savings: ${result.totalMonthlySavings}</p>
         <p>Savings percentage: {result.savingsPercentage}%</p>
+      </section>
+
+      <section className="mt-6">
+        <LeadCapture 
+          auditId={result.id} 
+          savings={result.totalMonthlySavings}
+          onSuccess={() => console.log('Lead saved')}
+        />
       </section>
     </div>
   );

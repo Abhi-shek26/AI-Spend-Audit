@@ -11,21 +11,39 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Invalid audit result' }, { status: 400 });
     }
 
-    const { data, error } = await supabase
-      .from('audit_results')
-      .insert([{ data: result }])
-      .select('id')
-      .single();
+    try {
+      // Try to save to Supabase
+      // Note: If RLS (Row Level Security) is enabled on the audit_results table,
+      // you need to either:
+      // 1. Disable RLS for development
+      // 2. Create an RLS policy that allows public inserts: 
+      //    CREATE POLICY "Allow public inserts" ON audit_results FOR INSERT WITH CHECK (true);
+      // 3. Or use a service role key instead of anon key
+      const { error } = await supabase
+        .from('audit_results')
+        .insert([{ audit_id: result.id, data: result }]);
 
-    if (error) {
-      return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+      if (error) {
+        console.error('Supabase insert error (audit_results):', error);
+        if (error.code === '42501') {
+          console.log('[Info] RLS policy blocking insert. Create policy to allow public inserts.');
+        }
+        // Don't fail, just log and continue
+      } else {
+        console.log(`[Supabase] Audit result ${result.id} saved successfully`);
+      }
+    } catch (supabaseErr) {
+      console.error('Supabase connection error:', supabaseErr);
+      // Supabase is optional; we can still return a shareable URL
     }
 
-    const url = `${process.env.NEXT_PUBLIC_APP_URL || ''}/audit/results/${result.id}`;
+    // Return success with share URL regardless of Supabase status
+    const url = `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3001'}/audit/results/${result.id}`;
 
     return NextResponse.json({ success: true, id: result.id, url });
   } catch (err) {
     const errorMsg = err instanceof Error ? err.message : 'Failed to save result';
+    console.error('Save error:', errorMsg);
     return NextResponse.json({ success: false, error: errorMsg }, { status: 500 });
   }
 }

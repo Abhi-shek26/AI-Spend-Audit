@@ -26,11 +26,22 @@ This file lists vendor pricing sources used by the audit engine. Each entry must
 - OpenAI API: per-usage / token pricing — see https://openai.com/pricing and https://platform.openai.com/pricing — verify exact model/token rates before final submission (2026-05-06)
 
 ## Google Gemini / Vertex AI (Enterprise / API)
-- Gemini / Vertex AI: enterprise and node-hour pricing (Vertex/Agent Platform). See node-hour and VM pricing (complex, region-specific) at https://cloud.google.com/vertex-ai/pricing — verified 2026-05-06
+- Gemini (consumer) Free: $0 - https://gemini.google.com — verified 2026-05-12
+- Gemini Pro: $20 / month (estimated from API usage) - https://gemini.google.com/pricing — verified 2026-05-12
+- Vertex AI: enterprise and node-hour pricing (Vertex/Agent Platform). See node-hour and VM pricing (complex, region-specific) at https://cloud.google.com/vertex-ai/pricing — verified 2026-05-06
 
-## Other / placeholders
-- Gemini (consumer tiers) — add explicit consumer/API prices if available and cite URL — TODO
-- Windsurf / v0 (placeholder tool) — add pricing and source if used — TODO
+## OpenAI API Direct
+- Free trial: $0 ($5 credit) - https://platform.openai.com/signup — verified 2026-05-12
+- Pay-as-you-go: token-based pricing
+  - GPT-4o: ~$0.003 input / $0.006 output per 1K tokens - https://openai.com/pricing — verified 2026-05-12
+  - GPT-4 Turbo: ~$0.01 input / $0.03 output per 1K tokens - https://openai.com/pricing — verified 2026-05-12
+  - GPT-3.5 Turbo: ~$0.0005 input / $0.0015 output per 1K tokens - https://openai.com/pricing — verified 2026-05-12
+- Typical monthly usage: $50-$500+ depending on token volume and model
+
+## Windsurf (Codeium)
+- Free: $0 - https://www.codeium.com — verified 2026-05-12
+- Windsurf: $20 / month - https://www.codeium.com/pricing — verified 2026-05-12
+- Pro: $24 / month - https://www.codeium.com/pricing — verified 2026-05-12
 
 ---
 

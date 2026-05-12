@@ -1,0 +1,28 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<svg width='1200' height='630' xmlns='http://www.w3.org/2000/svg'>
+  <defs>
+    <linearGradient id='grad' x1='0%' y1='0%' x2='100%' y2='100%'>
+      <stop offset='0%' style='stop-color:#0f172a;stop-opacity:1' />
+      <stop offset='100%' style='stop-color:#1e293b;stop-opacity:1' />
+    </linearGradient>
+  </defs>
+  <rect width='1200' height='630' fill='url(#grad)'/>
+  <rect width='1200' height='10' fill='#10b981'/>
+  
+  <text x='60' y='160' font-family='Arial, sans-serif' font-size='72' font-weight='bold' fill='#ffffff'>
+    AI Spend Audit
+  </text>
+  
+  <text x='60' y='240' font-family='Arial, sans-serif' font-size='36' fill='#d1d5db'>
+    Optimize Your AI Spending
+  </text>
+  
+  <text x='60' y='320' font-family='Arial, sans-serif' font-size='28' fill='#9ca3af'>
+    Discover monthly savings with our AI spending audit
+  </text>
+  
+  <circle cx='1050' cy='500' r='120' fill='#10b981' opacity='0.1'/>
+  <text x='60' y='550' font-family='Arial, sans-serif' font-size='20' fill='#10b981'>
+    credex.ai
+  </text>
+</svg>

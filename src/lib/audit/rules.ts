@@ -62,8 +62,8 @@ export function detectConsolidationOpportunities(
   void _useCases;
   // Simple heuristic: group known interchangeable tools (chat-style LLMs)
   const groups: Record<string, string[]> = {
-    llm: ['ChatGPT', 'Claude', 'Cursor', 'Vertex AI'],
-    copilots: ['GitHub Copilot', 'Cursor'],
+    llm: ['ChatGPT', 'Claude', 'Cursor', 'Vertex AI', 'Gemini', 'OpenAI API'],
+    copilots: ['GitHub Copilot', 'Cursor', 'Windsurf'],
   };
 
   const recs: Recommendation[] = [];

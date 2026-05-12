@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { AITool } from '@/lib/audit/types';
 
 const STORAGE_KEY = 'audit-tools';
-const TOOLS_LIST = ['Cursor', 'GitHub Copilot', 'Claude', 'ChatGPT', 'Vertex AI'];
+const TOOLS_LIST = ['Cursor', 'GitHub Copilot', 'Claude', 'ChatGPT', 'Vertex AI', 'OpenAI API', 'Gemini', 'Windsurf'] as const;
 const PLANS = ['free', 'pro', 'enterprise'] as const;
 const USAGE_FREQUENCIES = ['daily', 'weekly', 'monthly', 'rare'] as const;
 const TEAM_SIZES = ['solo', 'small', 'medium', 'large'] as const;
@@ -26,24 +26,14 @@ type NewToolState = {
 };
 
 export default function AuditForm({ onSubmit }: { onSubmit: (data: FormState) => void }) {
-  const getInitialState = (): FormState => {
-    try {
-      const saved = localStorage.getItem(STORAGE_KEY);
-      if (saved) {
-        return JSON.parse(saved) as FormState;
-      }
-    } catch {
-      // ignore parse errors
-    }
-
-    return {
-      teamSize: 'small',
-      tools: [],
-      useCases: '',
-    };
+  const defaultState: FormState = {
+    teamSize: 'small',
+    tools: [],
+    useCases: '',
   };
 
-  const [formState, setFormState] = useState<FormState>(getInitialState);
+  const [formState, setFormState] = useState<FormState>(defaultState);
+  const [isHydrated, setIsHydrated] = useState(false);
 
   const [newTool, setNewTool] = useState<NewToolState>({
     name: TOOLS_LIST[0],
@@ -54,7 +44,21 @@ export default function AuditForm({ onSubmit }: { onSubmit: (data: FormState) =>
 
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  // Save to localStorage whenever form state changes
+  // Hydrate from localStorage once on client, and save on subsequent changes
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        setFormState(JSON.parse(saved) as FormState);
+      }
+    } catch {
+      // ignore parse errors
+    }
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setIsHydrated(true);
+  }, []);
+
   useEffect(() => {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(formState));
@@ -126,6 +130,18 @@ export default function AuditForm({ onSubmit }: { onSubmit: (data: FormState) =>
   };
 
   const totalSpend = formState.tools.reduce((sum, tool) => sum + tool.monthlySpend, 0);
+
+  // Defer rendering until hydration is complete to prevent hydration mismatch
+  if (!isHydrated) {
+    return (
+      <div className="w-full max-w-4xl mx-auto px-4 py-8">
+        <div className="bg-slate-100 rounded-lg p-8 animate-pulse">
+          <div className="h-12 bg-slate-200 rounded mb-4" />
+          <div className="h-8 bg-slate-200 rounded" />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="w-full max-w-4xl mx-auto px-4 py-8">

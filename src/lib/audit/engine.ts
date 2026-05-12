@@ -4,7 +4,45 @@
  */
 
 import { checkUnderutilization, checkTeamSizeMismatch, detectConsolidationOpportunities } from './rules';
-import { AuditInput, AuditResult } from './types';
+import { AuditInput, AuditResult, Recommendation } from './types';
+
+/**
+ * Deduplicates recommendations by grouping on toolId + type
+ * Keeps the highest confidence/savings version of duplicates
+ * @param recs Array of recommendations that may contain duplicates
+ * @returns Array of deduplicated recommendations
+ */
+function deduplicateRecommendations(recs: Recommendation[]): Recommendation[] {
+  const grouped = new Map<string, Recommendation[]>();
+
+  // Group by toolId + type
+  for (const rec of recs) {
+    const key = `${rec.toolId}:${rec.type}`;
+    if (!grouped.has(key)) {
+      grouped.set(key, []);
+    }
+    grouped.get(key)!.push(rec);
+  }
+
+  // For each group, keep the best recommendation (highest confidence, then highest savings)
+  const deduplicated: Recommendation[] = [];
+  for (const recGroup of grouped.values()) {
+    if (recGroup.length === 1) {
+      deduplicated.push(recGroup[0]);
+    } else {
+      // Sort by confidence (high > medium > low) then by savings (descending)
+      const confidenceOrder = { high: 0, medium: 1, low: 2 };
+      const best = recGroup.sort((a, b) => {
+        const confDiff = confidenceOrder[a.confidence] - confidenceOrder[b.confidence];
+        if (confDiff !== 0) return confDiff;
+        return b.estimatedSavings - a.estimatedSavings;
+      })[0];
+      deduplicated.push(best);
+    }
+  }
+
+  return deduplicated;
+}
 
 /**
  * Evaluate an audit input and generate recommendations
@@ -27,7 +65,9 @@ export function evaluate(input: AuditInput): AuditResult {
 
   const consolidationRecs = detectConsolidationOpportunities(input.tools, input.useCases);
 
-  const recommendations = [...underutilizationRecs, ...teamSizeRecs, ...consolidationRecs];
+  // Combine and deduplicate recommendations
+  const allRecs = [...underutilizationRecs, ...teamSizeRecs, ...consolidationRecs];
+  const recommendations = deduplicateRecommendations(allRecs);
 
   const totalMonthlySavings = recommendations.reduce(
     (sum, rec) => sum + rec.estimatedSavings,

@@ -3,7 +3,7 @@
  * Ensures all required env vars are present at runtime
  */
 
-const requiredServerEnvVars = ['ANTHROPIC_API_KEY'];
+const requiredServerEnvVars = ['GEMINI_API_KEY'];
 const requiredClientEnvVars = [
   'NEXT_PUBLIC_APP_URL',
   'NEXT_PUBLIC_SUPABASE_URL',
@@ -29,6 +29,7 @@ requiredClientEnvVars.forEach((key) => {
 
 export const env = {
   // Server
+  geminiApiKey: process.env.GEMINI_API_KEY || '',
   anthropicApiKey: process.env.ANTHROPIC_API_KEY || '',
 
   // Client
