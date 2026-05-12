@@ -4,6 +4,24 @@
 **Scale Target:** 10,000 audits/day  
 **Tech Stack:** Next.js, TypeScript, Supabase, Claude API, TailwindCSS
 
+## ✅ Quality Gates
+
+This project treats Lighthouse mobile scores as a launch requirement, not a nice-to-have.
+
+- **Performance:** 89 
+- **Accessibility:** 100
+- **Best Practices:** 96
+
+![Tested Lighthouse result](image.png)
+
+How we include it in the project:
+
+1. Run Lighthouse on the deployed URL from Chrome DevTools or Lighthouse CI.
+2. Check the mobile report, not just desktop.
+3. Fix large images, render-blocking work, layout shifts, and accessibility issues before release.
+4. Re-run after changes to confirm the scores stay above the target.
+
+
 ---
 
 ## 📊 System Overview

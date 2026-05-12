@@ -202,7 +202,7 @@ Current architecture handles:
 
 ## 📸 Screenshots / Demo
 
-**Coming soon:** [YouTube Screen Recording](https://www.youtube.com/watch?v=example)
+**Coming soon:** [ Screen Recording](<video controls src="Demo_AI_Spend_Audit.mp4" title="Demo Video"></video>)
 
 1. **Audit Form:** Select tools, spending, team size
 2. **Results Page:** Recommendations + savings + export buttons
@@ -213,9 +213,9 @@ Current architecture handles:
 
 ## 🔗 Deployed URL
 
-**Production:** https://ai-spend-audit.netlify.app (or your custom domain)
+**Production:** https://ai-spend-audit1.netlify.app
 
-**Staging:** https://staging-ai-spend-audit.netlify.app
+**Staging:** https://ai-spend-audit1.netlify.app
 
 ---
 
