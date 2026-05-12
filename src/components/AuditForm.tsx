@@ -44,15 +44,17 @@ export default function AuditForm({ onSubmit }: { onSubmit: (data: FormState) =>
   const [errors, setErrors] = useState<Record<string, string>>({});
   // Hydrate from localStorage after mount
   useEffect(() => {
-    try {
-      const saved = localStorage.getItem(STORAGE_KEY);
-      if (saved) {
-        setFormState(JSON.parse(saved) as FormState);
+    const saved = localStorage.getItem(STORAGE_KEY);
+    queueMicrotask(() => {
+      try {
+        if (saved) {
+          setFormState(JSON.parse(saved) as FormState);
+        }
+      } catch {
+        // ignore parse errors
       }
-    } catch {
-      // ignore parse errors
-    }
-    setIsHydrated(true);
+      setIsHydrated(true);
+    });
   }, []);
 
 

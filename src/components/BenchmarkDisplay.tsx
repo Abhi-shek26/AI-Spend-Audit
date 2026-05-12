@@ -133,13 +133,13 @@ export default function BenchmarkDisplay({ comparison }: BenchmarkDisplayProps) 
         <ul className="space-y-2 text-sm text-blue-800">
           {isAboveAverage && (
             <li>
-              ✓ You're spending <strong>${Math.abs(comp.spendDifference)}</strong> more per month than similar companies
+              ✓ You&apos;re spending <strong>${Math.abs(comp.spendDifference)}</strong> more per month than similar companies
               — potential savings opportunity identified
             </li>
           )}
           {!isAboveAverage && (
             <li>
-              ✓ You're spending below the industry average — good cost management
+              ✓ You&apos;re spending below the industry average — good cost management
             </li>
           )}
           {isToolsAboveAverage && (

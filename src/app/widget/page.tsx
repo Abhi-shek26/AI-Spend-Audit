@@ -134,7 +134,7 @@ export default function WidgetPage() {
             <div>
               <h3 className="font-semibold text-slate-900">Is my data secure?</h3>
               <p className="text-slate-700 mt-2">
-                Yes. All data stays encrypted and is only used for audit analysis. We don't share your information.
+                Yes. All data stays encrypted and is only used for audit analysis. We don&apos;t share your information.
               </p>
             </div>
             <div>

@@ -355,7 +355,7 @@
     try {
       const height = iframeDoc.documentElement.scrollHeight;
       iframe.style.height = (height + 20) + 'px';
-    } catch (e) {
+    } catch {
       // Ignore cross-origin errors
     }
   }
@@ -365,7 +365,7 @@
     const observer = new MutationObserver(resizeIframe);
     try {
       observer.observe(iframeDoc.body, { childList: true, subtree: true, attributes: true });
-    } catch (e) {
+    } catch {
       // Fallback to periodic check
       setInterval(resizeIframe, 500);
     }
