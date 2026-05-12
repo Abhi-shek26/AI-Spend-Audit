@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { env } from '@/env';
 import { getSharedAuditResult } from '@/lib/audit/share';
 
 interface SharePageProps {
@@ -28,10 +29,10 @@ export async function generateMetadata({ params }: SharePageProps): Promise<Meta
       title: `$${totalSavings} in Monthly Savings - Credex AI Audit`,
       description: `AI spending audit with ${recommendationCount} recommendations to save $${totalSavings}/month.`,
       type: 'website',
-      url: `${process.env.NEXT_PUBLIC_APP_URL}/audit/results/${id}`,
+      url: `${env.appUrl}/audit/results/${id}`,
       images: [
         {
-          url: `${process.env.NEXT_PUBLIC_APP_URL}/og-image.svg`,
+          url: `${env.appUrl}/og-image.svg`,
           width: 1200,
           height: 630,
           alt: 'Credex AI Spend Audit Results',
@@ -43,7 +44,7 @@ export async function generateMetadata({ params }: SharePageProps): Promise<Meta
       card: 'summary_large_image',
       title: `$${totalSavings} in Monthly Savings - Credex AI Audit`,
       description: `AI spending audit with ${recommendationCount} recommendations to save $${totalSavings}/month.`,
-      images: [`${process.env.NEXT_PUBLIC_APP_URL}/og-image.svg`],
+      images: [`${env.appUrl}/og-image.svg`],
     },
   };
 }

@@ -5,6 +5,23 @@ import { useParams } from 'next/navigation';
 import type { AuditResult } from '@/lib/audit/types';
 import { getSharedAuditResult } from '@/lib/audit/share';
 
+function getDisplayTotals(result: AuditResult) {
+  const derivedMonthlySavings = result.recommendations.reduce(
+    (sum, rec) => sum + rec.estimatedSavings,
+    0
+  );
+  const totalMonthlySavings =
+    result.totalMonthlySavings > 0 ? result.totalMonthlySavings : derivedMonthlySavings;
+  const savingsPercentage =
+    result.savingsPercentage > 0
+      ? result.savingsPercentage
+      : result.input.totalMonthlySpend > 0
+        ? Math.round((totalMonthlySavings / result.input.totalMonthlySpend) * 100)
+        : 0;
+
+  return { totalMonthlySavings, savingsPercentage };
+}
+
 export default function SharedResultsPage() {
   const params = useParams<{ id: string }>();
   const [result, setResult] = useState<AuditResult | null>(null);
@@ -41,6 +58,8 @@ export default function SharedResultsPage() {
     );
   }
 
+  const displayTotals = getDisplayTotals(result);
+
   return (
     <div className="max-w-4xl mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold">Shared Audit Result</h1>
@@ -48,8 +67,8 @@ export default function SharedResultsPage() {
 
       <section className="mt-6 rounded-md border bg-white p-5">
         <h2 className="text-lg font-semibold">Totals</h2>
-        <p className="mt-2">Total monthly savings: ${result.totalMonthlySavings}</p>
-        <p>Savings percentage: {result.savingsPercentage}%</p>
+        <p className="mt-2">Total monthly savings: ${displayTotals.totalMonthlySavings}</p>
+        <p>Savings percentage: {displayTotals.savingsPercentage}%</p>
       </section>
 
       <section className="mt-6 rounded-md border bg-white p-5">

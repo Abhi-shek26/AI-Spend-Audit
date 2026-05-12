@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { env } from '@/env';
 import { supabase } from '@/lib/supabase';
 import type { AuditResult } from '@/lib/audit/types';
 
@@ -38,7 +39,7 @@ export async function POST(request: Request) {
     }
 
     // Return success with share URL regardless of Supabase status
-    const url = `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3001'}/audit/results/${result.id}`;
+    const url = `${env.appUrl}/audit/results/${result.id}`;
 
     return NextResponse.json({ success: true, id: result.id, url });
   } catch (err) {

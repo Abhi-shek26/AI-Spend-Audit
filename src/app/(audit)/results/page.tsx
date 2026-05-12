@@ -2,7 +2,26 @@
 
 import { useEffect, useState } from 'react';
 import { AuditResult, Recommendation } from '@/lib/audit/types';
-import { saveSharedAuditResult } from '@/lib/audit/share';import LeadCapture from '@/components/LeadCapture';
+import { saveSharedAuditResult } from '@/lib/audit/share';
+import LeadCapture from '@/components/LeadCapture';
+
+function getDisplayTotals(result: AuditResult) {
+  const derivedMonthlySavings = result.recommendations.reduce(
+    (sum, rec) => sum + rec.estimatedSavings,
+    0
+  );
+  const totalMonthlySavings =
+    result.totalMonthlySavings > 0 ? result.totalMonthlySavings : derivedMonthlySavings;
+  const savingsPercentage =
+    result.savingsPercentage > 0
+      ? result.savingsPercentage
+      : result.input.totalMonthlySpend > 0
+        ? Math.round((totalMonthlySavings / result.input.totalMonthlySpend) * 100)
+        : 0;
+
+  return { totalMonthlySavings, savingsPercentage };
+}
+
 export default function ResultsPage() {
   const [result, setResult] = useState<AuditResult | null>(null);
   const [summary, setSummary] = useState<string>('');
@@ -82,6 +101,8 @@ export default function ResultsPage() {
     );
   }
 
+  const displayTotals = getDisplayTotals(result);
+
   return (
     <div className="max-w-4xl mx-auto px-4 py-8">
       <header className="mb-6">
@@ -150,14 +171,14 @@ export default function ResultsPage() {
 
       <section className="bg-white p-6 rounded-md border">
         <h2 className="text-lg font-semibold">Totals</h2>
-        <p className="mt-2">Total monthly savings: ${result.totalMonthlySavings}</p>
-        <p>Savings percentage: {result.savingsPercentage}%</p>
+        <p className="mt-2">Total monthly savings: ${displayTotals.totalMonthlySavings}</p>
+        <p>Savings percentage: {displayTotals.savingsPercentage}%</p>
       </section>
 
       <section className="mt-6">
         <LeadCapture 
           auditId={result.id} 
-          savings={result.totalMonthlySavings}
+          savings={displayTotals.totalMonthlySavings}
           onSuccess={() => console.log('Lead saved')}
         />
       </section>
