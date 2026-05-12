@@ -14,7 +14,7 @@ export async function POST(request: Request) {
 
     const topRecs = result.recommendations?.slice(0, 3) || [];
     const recDetails = topRecs
-      .map((r) => `• ${r.toolName}: ${r.reason} (~$${r.monthlySavings}/month)`)
+      .map((r) => `• ${r.toolName}: ${r.reason} (~$${r.estimatedSavings}/month)`)
       .join('\n');
 
     const prompt = `You are an AI spending optimization expert. Generate a structured summary with these exact sections (keep each section concise):
@@ -89,12 +89,12 @@ Generate the structured summary now with clear section headers:`;
 
         if (topThree.length > 0) {
           const topRec = topThree[0];
-          fallbackSummary = `Your AI spending audit identified ${result.recommendations.length} optimization opportunities with a total potential savings of $${result.totalMonthlySavings}/month. The highest priority is ${topRec.toolName}: ${topRec.reason}, which could save approximately $${topRec.monthlySavings}/month. `;
+          fallbackSummary = `Your AI spending audit identified ${result.recommendations.length} optimization opportunities with a total potential savings of $${result.totalMonthlySavings}/month. The highest priority is ${topRec.toolName}: ${topRec.reason}, which could save approximately $${topRec.estimatedSavings}/month. `;
 
           if (topThree.length > 1) {
             fallbackSummary += `Additional opportunities include ${topThree
               .slice(1)
-              .map((r) => `${r.toolName} ($${r.monthlySavings}/month)`)
+              .map((r) => `${r.toolName} ($${r.estimatedSavings}/month)`)
               .join(' and ')}. `;
           }
 

@@ -26,7 +26,7 @@ export default function LeadCapture({ auditId, savings, onSuccess }: LeadCapture
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState('');
-  const [captchaReady, setCaptchaReady] = useState(false);
+  const [, setCaptchaReady] = useState(false);
   const captchaRef = useRef<HTMLDivElement>(null);
   const captchaRenderedRef = useRef(false);
 
@@ -36,38 +36,13 @@ export default function LeadCapture({ auditId, savings, onSuccess }: LeadCapture
       return;
     }
 
-    // Check if script already exists
-    if (document.querySelector('script[src*="hcaptcha"]')) {
-      if (window.hcaptcha && captchaRef.current) {
-        try {
-          // Clear container first
-          if (captchaRef.current.innerHTML.includes('iframe')) {
-            return; // Already rendered
-          }
-          window.hcaptcha.render('hcaptcha-container', {
-            sitekey: process.env.NEXT_PUBLIC_HCAPTCHA_SITE_KEY,
-            theme: 'light',
-          });
-          captchaRenderedRef.current = true;
-          setCaptchaReady(true);
-        } catch (err) {
-          console.error('hCaptcha render error:', err);
-        }
+    // Define global callback for hCaptcha onload
+    const onHcaptchaLoad = () => {
+      if (captchaRenderedRef.current || !captchaRef.current) {
+        return;
       }
-      return;
-    }
 
-    // Load script
-    const script = document.createElement('script');
-    script.src = 'https://js.hcaptcha.com/1/api.js?render=explicit';
-    script.async = true;
-    script.defer = true;
-    document.body.appendChild(script);
-
-    const handleScriptLoad = () => {
-      if (captchaRenderedRef.current) return; // Already rendered
-
-      if (window.hcaptcha && captchaRef.current) {
+      if (window.hcaptcha) {
         try {
           window.hcaptcha.render('hcaptcha-container', {
             sitekey: process.env.NEXT_PUBLIC_HCAPTCHA_SITE_KEY,
@@ -81,7 +56,27 @@ export default function LeadCapture({ auditId, savings, onSuccess }: LeadCapture
       }
     };
 
-    script.onload = handleScriptLoad;
+    // Store callback on window for hCaptcha to call
+    (window as any).onHcaptchaLoad = onHcaptchaLoad;
+
+    // Check if script already exists
+    if (document.querySelector('script[src*="hcaptcha"]')) {
+      // Script already loaded, try to render if hCaptcha is ready
+      if (window.hcaptcha && captchaRef.current) {
+        // Use setTimeout to ensure DOM is ready and hCaptcha API is fully initialized
+        setTimeout(() => {
+          onHcaptchaLoad();
+        }, 100);
+      }
+      return;
+    }
+
+    // Load script with onload callback
+    const script = document.createElement('script');
+    script.src = 'https://js.hcaptcha.com/1/api.js?render=explicit&onload=onHcaptchaLoad';
+    script.async = true;
+    script.defer = true;
+    document.body.appendChild(script);
 
     return () => {
       // Cleanup - reset ref on unmount
@@ -222,7 +217,7 @@ export default function LeadCapture({ auditId, savings, onSuccess }: LeadCapture
         <div
           ref={captchaRef}
           id="hcaptcha-container"
-          className="h-[78px]"
+          className="h-19.5"
         />
       </div>
 
